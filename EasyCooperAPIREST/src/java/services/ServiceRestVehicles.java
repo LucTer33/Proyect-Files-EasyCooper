@@ -18,6 +18,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import java.util.List;
  */
 @Path("vehicles")
 public class ServiceRestVehicles {
+
     private static final String PERSISTENCE_UNIT = "EasyCooperAPIRESTPU";
 
     @GET
@@ -39,7 +41,7 @@ public class ServiceRestVehicles {
 
         List<Vehicle> list;
         try {
-            
+
             emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
             VehicleJpaController dao = new VehicleJpaController(emf);
             list = dao.findVehicleEntities();
@@ -56,7 +58,7 @@ public class ServiceRestVehicles {
                         .build();
             }
         } catch (Exception ex) {
-            
+
             statusResul = Response.Status.BAD_REQUEST;
             mensaje.put("mensaje", "Error al procesar la petición");
             response = Response
@@ -70,7 +72,7 @@ public class ServiceRestVehicles {
         }
         return response;
     }
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -114,7 +116,7 @@ public class ServiceRestVehicles {
 
         return response;
     }
-    
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -140,6 +142,9 @@ public class ServiceRestVehicles {
                 mensaje.put("mensaje", "No se encontró el vehículo a actualizar.");
                 response = Response.status(statusResul).entity(mensaje).build();
             } else {
+                if (veh.getReservationsCollection() == null) {
+                    veh.setReservationsCollection(new ArrayList<>());
+                }
                 dao.edit(veh);
                 statusResul = Response.Status.OK;
                 mensaje.put("mensaje", "Vehículo actualizado correctamente.");
@@ -158,7 +163,7 @@ public class ServiceRestVehicles {
         }
         return response;
     }
-    
+
     @DELETE
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)

@@ -111,9 +111,10 @@ public class ServiceRestReservations {
 
             // Comprobar si ya existe un vehiculo ocupado a esas horas
             boolean ocupado = false;
-            List<Reservations> reservationsFound = dao.findReservationsEntities();
-            ocupado = reservationsFound.stream().filter(x -> x.getIdVehicle() == res.getIdVehicle() && x.getDateReservation() == res.getDateReservation() && res.getInitHour().before(x.getFinalHour()) && res.getFinalHour().after(x.getInitHour())).count() > 0;
-
+            List<Reservations> reservationsFound = dao.findReservationsEntities();            
+            
+            ocupado = reservationsFound.stream().filter(x -> x.getIdVehicle().getId().equals(res.getIdVehicle().getId()) && x.getDateReservation().equals(res.getDateReservation()) && res.getInitHour().before(x.getFinalHour()) || res.getInitHour().equals(x.getFinalHour())  && res.getFinalHour().after(x.getInitHour()) || res.getFinalHour().equals(x.getInitHour())).count() > 0;
+            System.out.println("esta ocupado?: "+ocupado);
             if (ocupado) {
                 statusResul = Response.Status.FOUND;
                 mensaje.put("mensaje", "La reserva no puede operarse, ya que el vehiculo esta ocupado");

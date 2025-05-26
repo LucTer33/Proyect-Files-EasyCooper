@@ -17,6 +17,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 
 /**
  *
@@ -53,7 +54,7 @@ public class Vehicle implements Serializable {
     private String maxSpeed;
     @OneToMany(mappedBy = "idVehicle")
     @JsonbTransient
-    private Collection<Reservations> reservationsCollection;
+    private Collection<Reservations> reservationsCollection=new ArrayList<>();
 
     public Vehicle() {
     }

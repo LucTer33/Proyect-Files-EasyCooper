@@ -47,12 +47,11 @@ public class Reservations implements Serializable {
     private Date dateCreation;
     @Column(name = "date_reservation")
     @Temporal(TemporalType.DATE)
-    private Date dateReservation;
+    private Date dateReservation;    
     @Column(name = "initHour")
     @Temporal(TemporalType.TIME)
     private Date initHour;
-    @Column(name = "finalHour")
-    @Temporal(TemporalType.TIME)
+    @Column(name = "finalHour")    
     private Date finalHour;
     @Basic(optional = false)
     @Column(name = "state")

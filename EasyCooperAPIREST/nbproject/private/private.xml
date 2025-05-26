@@ -3,16 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/easycooper/Reservations.java</file>
             <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/services/ServiceRestReservations.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/services/ServiceRestVehicles.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/easycooper/Userec.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/easycooper/ReservationsJpaController.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/easycooper/Vehicle.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/conf/persistence.xml</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/services/ApplicationConfig.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/src/java/services/ServiceRestUsers.java</file>
-            <file>file:/C:/Users/Lucas%20Teran/Desktop/Proyecto%20FCP%20-%20copia/EasyCooperAPIREST/web/META-INF/context.xml</file>
         </group>
     </open-files>
 </project-private>
