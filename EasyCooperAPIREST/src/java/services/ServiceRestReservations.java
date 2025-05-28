@@ -22,8 +22,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +37,9 @@ import java.util.Map;
  */
 @Path("reservations")
 public class ServiceRestReservations {
-    
+
     private static final String PERSISTENCE_UNIT = "EasyCooperAPIRESTPU";
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
@@ -44,11 +47,9 @@ public class ServiceRestReservations {
         HashMap<String, String> mensaje = new HashMap<>();
         Response response;
         Response.Status statusResul;
-        List<Reservations> list;   
-        
-        
-        
-        try {            
+        List<Reservations> list;
+
+        try {
             emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
             ReservationsJpaController dao = new ReservationsJpaController(emf);
             list = dao.findReservationsEntities();
@@ -65,7 +66,7 @@ public class ServiceRestReservations {
                         .entity(list)
                         .build();
             }
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             ex.printStackTrace();  // Esto es importante
 
             statusResul = Response.Status.BAD_REQUEST;
@@ -82,7 +83,7 @@ public class ServiceRestReservations {
         }
         return response;
     }
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -111,10 +112,14 @@ public class ServiceRestReservations {
 
             // Comprobar si ya existe un vehiculo ocupado a esas horas
             boolean ocupado = false;
-            List<Reservations> reservationsFound = dao.findReservationsEntities();            
-            
-            ocupado = reservationsFound.stream().filter(x -> x.getIdVehicle().getId().equals(res.getIdVehicle().getId()) && x.getDateReservation().equals(res.getDateReservation()) && res.getInitHour().before(x.getFinalHour()) || res.getInitHour().equals(x.getFinalHour())  && res.getFinalHour().after(x.getInitHour()) || res.getFinalHour().equals(x.getInitHour())).count() > 0;
-            System.out.println("esta ocupado?: "+ocupado);
+            List<Reservations> reservationsFound = dao.findReservationsEntities();
+
+            LocalDate fechaReservaNueva = res.getDateReservation().toInstant()
+                    .atOffset(ZoneOffset.UTC)
+                    .toLocalDate();
+            ocupado = reservationsFound.stream().filter(x -> x.getIdVehicle().getId().equals(res.getIdVehicle().getId()) && x.getDateReservation().equals(fechaReservaNueva) && res.getInitHour().before(x.getFinalHour()) && res.getFinalHour().after(x.getInitHour())).count() > 0;
+
+            System.out.println("esta ocupado?: " + ocupado);
             if (ocupado) {
                 statusResul = Response.Status.FOUND;
                 mensaje.put("mensaje", "La reserva no puede operarse, ya que el vehiculo esta ocupado");
@@ -144,7 +149,7 @@ public class ServiceRestReservations {
 
         return response;
     }
-    
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -168,13 +173,64 @@ public class ServiceRestReservations {
 
             } else {
                 res.setDateCreation(existing.getDateCreation());
+
                 boolean ocupado = false;
-                ocupado = dao.findReservationsEntities().stream().filter(x -> x.getIdUser() == res.getIdUser() && x.getIdVehicle() == res.getIdVehicle() && x.getDateReservation() == res.getDateReservation() && res.getInitHour().before(x.getFinalHour()) && res.getFinalHour().after(x.getInitHour())).count() > 0;
+                List<Reservations> reservationsFound = dao.findReservationsEntities();
+                //2(reserva a actualizar) -->1(reserva grabada)
+                System.out.println("initHour en request: " + res.getInitHour());
+                System.out.println("finalHour en request: " + res.getFinalHour());
+
+                LocalDate fechaReservaNueva = res.getDateReservation().toInstant()
+                        .atOffset(ZoneOffset.UTC)
+                        .toLocalDate();
+
+                LocalDate fechaReservaExistente = reservationsFound.get(0).getDateReservation().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                
+                 if (res.getInitHour() != null) {
+                        res.setInitHour(new Date(res.getInitHour().getTime() - 3600_000));
+                    }
+                    if (res.getFinalHour() != null) {
+                        res.setFinalHour(new Date(res.getFinalHour().getTime() - 3600_000));
+                    }
+                    System.out.println("formateado initHour en request: " + res.getInitHour());
+                    System.out.println("formateado finalHour en request: " + res.getFinalHour());
+                System.out.println("Es distinto el id de res: " + res.getId() + " es igual al del guardado?: " + reservationsFound.get(0).getId() + " : " + !res.getId().equals(reservationsFound.get(0).getId()));
+                System.out.println("Es igual el idUser de res: " + res.getIdUser().getId() + "  al del guardado?: " + reservationsFound.get(0).getIdUser().getId() + " : " + res.getIdUser().getId().equals(reservationsFound.get(0).getIdUser().getId()));
+                System.out.println("Es distinto el idUser de res: " + res.getIdUser().getId() + "  al del guardado?: " + reservationsFound.get(0).getIdUser().getId() + " : " + !res.getIdUser().getId().equals(reservationsFound.get(0).getIdUser().getId()));
+                System.out.println("Es igual el idVehicle de res: " + res.getIdVehicle().getId() + "  al del guardado?: " + reservationsFound.get(0).getIdVehicle().getId() + " : " + res.getIdVehicle().getId().equals(reservationsFound.get(0).getIdVehicle().getId()));
+                System.out.println("Es igual el DateReservation de res: " + fechaReservaNueva + "  al del guardado?: " + fechaReservaExistente + " : " + fechaReservaNueva.equals(fechaReservaExistente));
+                System.out.println("Es previo la InitHour de res: " + res.getInitHour() + " de el guardado?: " + reservationsFound.get(0).getInitHour() + " : " + res.getInitHour().before(reservationsFound.get(0).getFinalHour()));
+                System.out.println("Es posterior la FinalHourt de res: " + res.getFinalHour() + " de el guardado?: " + reservationsFound.get(0).getFinalHour() + " : " + res.getFinalHour().after(reservationsFound.get(0).getInitHour()));
+
+                ocupado = reservationsFound.stream().filter(x -> !x.getId().equals(res.getId())
+                        && //Si es otra reserva 
+                        (x.getIdUser().getId().equals(res.getIdUser().getId()) || !x.getIdUser().getId().equals(res.getIdUser().getId()))
+                        && //Si es el mismo
+                        x.getIdVehicle().getId().equals(res.getIdVehicle().getId())
+                        && //Si es el mismo vehiculo
+                        x.getDateReservation().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().equals(fechaReservaNueva)
+                        && //Si es el mismo dia
+                        res.getInitHour().before(x.getFinalHour())
+                        && //Si hay alguna reserva con hora initi al antes de la hora final de otra reserva
+                        res.getFinalHour().after(x.getInitHour())).count() > 0; //Si hay alguna reserva con hora final despues de la hora inicial de otra reserva 
+
+                System.out.println("esta ocupado?: " + ocupado);
                 if (ocupado) {
                     statusResul = Response.Status.FOUND;
                     mensaje.put("mensaje", "La hora cambiada coincide con otra reserva");
                     response = Response.status(statusResul).entity(mensaje).build();
                 } else {
+
+//                    if (res.getInitHour() != null) {
+//                        res.setInitHour(new Date(res.getInitHour().getTime() + 3600_000));
+//                    }
+//                    if (res.getFinalHour() != null) {
+//                        res.setFinalHour(new Date(res.getFinalHour().getTime() + 3600_000));
+//                    }
+//                    System.out.println("initHour en request: " + res.getInitHour());
+//                    System.out.println("finalHour en request: " + res.getFinalHour());
                     dao.edit(res);  // Método generado por NetBeans al usar JPA Controller
                     statusResul = Response.Status.OK;
                     mensaje.put("mensaje", "Reserva actualizada correctamente.");
@@ -196,7 +252,7 @@ public class ServiceRestReservations {
 
         return response;
     }
-    
+
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -244,3 +300,14 @@ public class ServiceRestReservations {
         return response;
     }
 }
+//ocupado = reservationsFound.stream().filter(x -> !x.getId().equals(res.getId())
+//                        && //Si es otra reserva 
+//                        (x.getIdUser().getId().equals(res.getIdUser().getId()) || !x.getIdUser().getId().equals(res.getIdUser().getId()))
+//                        && //Si es el mismo
+//                        x.getIdVehicle().getId().equals(res.getIdVehicle().getId())
+//                        && //Si es el mismo vehiculo
+//                        x.getDateReservation().equals(res.getDateReservation())
+//                        && //Si es el mismo dia
+//                        res.getInitHour().before(x.getFinalHour())
+//                        && //Si hay alguna reserva con hora initi al antes de la hora final de otra reserva
+//                        res.getFinalHour().after(x.getInitHour())).count() > 0; //Si hay alguna reserva con hora final despues de la hora inicial de otra reserva 

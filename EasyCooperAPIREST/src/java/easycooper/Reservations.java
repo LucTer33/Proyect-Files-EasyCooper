@@ -19,6 +19,8 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  *
@@ -47,11 +49,14 @@ public class Reservations implements Serializable {
     private Date dateCreation;
     @Column(name = "date_reservation")
     @Temporal(TemporalType.DATE)
-    private Date dateReservation;    
+    private Date dateReservation;
     @Column(name = "initHour")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     @Temporal(TemporalType.TIME)
     private Date initHour;
-    @Column(name = "finalHour")    
+    @Column(name = "finalHour")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @Temporal(TemporalType.TIME)
     private Date finalHour;
     @Basic(optional = false)
     @Column(name = "state")
@@ -163,5 +168,5 @@ public class Reservations implements Serializable {
     public String toString() {
         return "easycooper.Reservations[ id=" + id + " ]";
     }
-    
+
 }
